@@ -3,10 +3,23 @@ import asyncio
 from pylitterbot import Account
 from datetime import date
 
-username = ""
-password = ""
+def main():
+  try:
+    import config
+    username = config.username
+    password = config.password
+    asyncio.run(login(username, password))
+  except ModuleNotFoundError:
+    print("No config found, please enter the following")
+    f = open("config.py", "w")
+    username = input("Username:")
+    f.write("username = '" + username + "'\n")
+    password = input("Password:")
+    f.write("password = '" + password + "'")
+    f.close()
+    main()
 
-async def main():
+async def login(username, password):
   print("Logging in...")
   dateStr = str(date.today())
   account = Account()
@@ -43,4 +56,4 @@ async def main():
 
 if __name__ == "__main__":
   asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-  asyncio.run(main())
+  main()
