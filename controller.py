@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import asyncio
+import time
 from pylitterbot import Account
 from datetime import date
 
@@ -20,15 +21,22 @@ def main():
     main()
 
 async def login(username, password):
-  print("Logging in...")
+  print("Logging in...", end="", flush=True)
   dateStr = str(date.today())
   account = Account()
   try:
     await account.connect(username=username, password=password, load_robots=True)
+    print(" DONE")
     for robot in account.robots:
       print("Robot:", robot.name, "("+robot.model+")")
       print("Current status:", robot.status)
-      history = await robot.get_activity_history()
+      print("Getting activity history...", end="", flush=True)
+      time.sleep(2)
+      try:
+        history = await robot.get_activity_history()
+      except:
+        print("ERROR")
+      print(" DONE")
       eventsToday = 0
       for event in history:
         eventStr = str(event)
@@ -36,23 +44,45 @@ async def login(username, password):
           eventsToday += 1
       print("Events today:", eventsToday)
       next = input("""
-      Enter one of the following numbers to continue or anything else to disconnect:
-      1) Cycle litterbot
-      2) View history
-      3) View insight
-      """)
+        Enter one of the following numbers to continue or anything else to disconnect:
+        1) Cycle litterbot
+        2) View history
+        3) View cat weights
+        -> """)
       if next == "1":
         await robot.start_cleaning()
         print("Started cycle...")
       elif next == "2":
         for event in history:
-          print(event)
+          print(str(event.timestamp.replace(tzinfo=None)) + " - " + str(event.action))
       elif next == "3":
-        insight = await robot.get_insight()
-        print(insight)
+        cat1Weights = []
+        cat1Times = []
+        cat2Weights = []
+        cat2Times = []
+        for event in history:
+          if "Pet Weight Recorded: " in str(event.action):
+            weight = float(event.action[21:26])
+            if weight >= 15.0:
+              cat2Weights.append(weight)
+              cat2Times.append(event.timestamp)
+            elif weight >= 10.0:
+              cat1Weights.append(weight)
+              cat1Times.append(event.timestamp)
+        print("Cat 1 weights (lbs):")
+        i = 0
+        for cat1 in cat1Weights:
+          print(str(cat1Times[i].replace(tzinfo=None)) + " - " + str(cat1))
+          i += 1
+        print ("Cat 2 weights (lbs):")
+        i = 0
+        for cat2 in cat2Weights:
+          print(str(cat2Times[i].replace(tzinfo=None)) + " - " + str(cat2))
+          i += 1
   finally:
-    print("Disconnecting...")
+    print("Disconnecting...", end="", flush=True)
     await account.disconnect()
+    print(" DONE")
 
 if __name__ == "__main__":
   asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())

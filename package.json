@@ -1,7 +1,7 @@
 {
     "name": "litterbot-controller",
     "displayName": "litterbot-controller",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "scripts": {
         "start": "py controller.py",
         "install": "pip install -r requirements.txt"
