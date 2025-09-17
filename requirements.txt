@@ -1,2 +1,2 @@
-pylitterbot == 2023.5.0
-tzdata == 2024.1
+pylitterbot == 2024.2.4
+tzdata == 2025.2
