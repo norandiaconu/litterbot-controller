@@ -1,9 +1,12 @@
 {
     "name": "litterbot-controller",
     "displayName": "litterbot-controller",
-    "version": "1.2.0",
+    "version": "1.3.0",
+    "bin": {
+        "l": "start.ps1"
+    },
     "scripts": {
         "start": "py controller.py",
-        "install": "pip install -r requirements.txt"
+        "postinstall": "py -m pip install -r requirements.txt --q"
     }
 }

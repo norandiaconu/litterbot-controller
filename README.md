@@ -6,3 +6,6 @@ Enter one of the following numbers to continue or anything else to disconnect:
 2) Reset status
 3) View history
 4) View cat weights
+
+## Credits
+[pylitterbot](https://github.com/natekspencer/pylitterbot)

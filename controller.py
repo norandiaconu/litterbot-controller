@@ -3,9 +3,11 @@ import asyncio
 import time
 from pylitterbot import Account
 from datetime import date
+from yaspin import yaspin
 
 robot = None
 history = None
+spinner = yaspin()
 
 def main():
     try:
@@ -24,36 +26,41 @@ def main():
         main()
 
 async def login(username, password):
-    print("Logging in...", end="", flush=True)
+    spinner.text = "Logging in..."
+    spinner.start()
     dateStr = str(date.today())
     account = Account()
     try:
         await account.connect(username=username, password=password, load_robots=True)
-        print(" DONE")
+        loadedOnce = 'False'
         for eachRobot in account.robots:
             global robot
             robot = eachRobot
+            spinner.stop()
             print("Robot:", robot.name, "("+robot.model+")")
             print("Current status:", robot.status)
-            print("Getting activity history...", end="", flush=True)
-            time.sleep(2)
+            spinner.text = "Getting activity history..."
+            spinner.start()
             try:
                 global history
+                if loadedOnce == 'True':
+                    time.sleep(2)
                 history = await robot.get_activity_history()
+                loadedOnce = 'True'
             except:
                 print("ERROR")
-            print(" DONE")
             eventsToday = 0
             for event in history:
                 eventStr = str(event)
                 if eventStr.startswith(dateStr):
                     eventsToday += 1
+            spinner.stop()
             print("Events today:", eventsToday)
             await controls()
     finally:
-        print("Disconnecting...", end="", flush=True)
+        spinner.text = "Disconnecting..."
         await account.disconnect()
-        print(" DONE")
+        spinner.stop()
 
 async def controls():
     next = input("""
@@ -64,12 +71,18 @@ async def controls():
         4) View cat weights
         -> """)
     if next == "1":
+        spinner.text = "Starting cycle..."
+        spinner.start()
         await robot.start_cleaning()
-        print("Started cycle...")
+        spinner.stop()
+        print("Started cycle")
         await controls()
     elif next == "2":
+        spinner.text = "Status resetting..."
+        spinner.start()
         await robot.reset()
-        print("Status reset...")
+        spinner.stop()
+        print("Status reset")
         await controls()
     elif next == "3":
         for event in history:
@@ -102,5 +115,4 @@ async def controls():
         await controls()
 
 if __name__ == "__main__":
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     main()
