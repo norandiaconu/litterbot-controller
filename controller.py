@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
+from yaspin import yaspin
+spinner = yaspin()
+spinner.text = "Config loading..."
+spinner.start()
+
 import asyncio
 import time
+import sys
 from pylitterbot import Account
 from datetime import date
-from yaspin import yaspin
 
 robot = None
 history = None
-spinner = yaspin()
 
 def main():
     try:
@@ -16,6 +20,7 @@ def main():
         password = config.password
         asyncio.run(login(username, password))
     except ModuleNotFoundError:
+        spinner.stop()
         print("No config found, please enter the following")
         f = open("config.py", "w")
         username = input("Username:")
@@ -39,6 +44,9 @@ async def login(username, password):
             spinner.stop()
             print("Robot:", robot.name, "("+robot.model+")")
             print("Current status:", robot.status)
+            if len(sys.argv) == 1 or len(sys.argv) > 1 and sys.argv[1] != 'c':
+                await account.disconnect()
+                sys.exit(0)
             spinner.text = "Getting activity history..."
             spinner.start()
             try:
@@ -58,7 +66,6 @@ async def login(username, password):
             print("Events today:", eventsToday)
             await controls()
     finally:
-        spinner.text = "Disconnecting..."
         await account.disconnect()
         spinner.stop()
 

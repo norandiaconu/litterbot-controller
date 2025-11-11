@@ -1,4 +1,14 @@
 # litterbot-controller
+
+## Installation
+`npm i litterbot-controller -g`
+
+## Usage
+`l`: quickly check litterbot status  
+`l c`: login in and bring up complete menu options  
+`l d`: delete username/password config
+
+### Menu
 View details or cycle litterbot
 
 Enter one of the following numbers to continue or anything else to disconnect:
