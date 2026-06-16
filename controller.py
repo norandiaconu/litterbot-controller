@@ -43,7 +43,10 @@ async def login(username, password):
             robot = eachRobot
             spinner.stop()
             print("Robot:", robot.name, "("+robot.model+")")
-            print("Current status:", robot.status)
+            if str(robot.status) == 'LitterBoxStatus.READY':
+                print("\x1b[0;32;40mCurrent status: ", robot.status, "\x1b[0m")
+            else:
+                print("Current status:", robot.status)
             if len(sys.argv) == 1 or len(sys.argv) > 1 and sys.argv[1] != 'c':
                 await account.disconnect()
                 sys.exit(0)
@@ -102,11 +105,11 @@ async def controls():
         cat2Times = []
         for event in history:
             if "Pet Weight Recorded: " in str(event.action):
-                weight = float(event.action[21:26])
+                weight = float(event.action.split(" ")[3])
                 if weight >= 15.0:
                     cat2Weights.append(weight)
                     cat2Times.append(event.timestamp)
-                elif weight >= 10.0:
+                else:
                     cat1Weights.append(weight)
                     cat1Times.append(event.timestamp)
         print("Cat 1 weights (lbs):")
